@@ -31,6 +31,17 @@ const SCORING = {
   }
 }
 
+const HowTheRoundShouldEnd = {
+  'X': 'loss',
+  'Y': 'draw',
+  'Z': 'win'
+}
+
+const WinAgainst = {
+  'rock': 'paper',
+  'paper': 'scissors',
+  'scissors': 'rock'
+}
 
 class Round {
   // DECODE lines from input with this
@@ -38,16 +49,13 @@ class Round {
     'A': 'rock',
     'B': 'paper',
     'C': 'scissors',
-    'X': 'rock',
-    'Y': 'paper',
-    'Z': 'scissors'
   };
 
   constructor(line) {
     let letters = line.split(' ');
     console.log(letters);
     this.opponent = Round.SIGNS[letters[0]];
-    this.me = Round.SIGNS[letters[1]];
+    this.me = this.mySign(HowTheRoundShouldEnd[letters[1]]);// calculate me based on outcome and this.opponent
     this.score = this.calcScore();
   }
 
@@ -103,6 +111,27 @@ class Round {
     return total;
   }
 
+  // determine the outcome by X Y or Z,
+  // based on the outcome, check the opponents sign,
+  /**
+   * if draw, match this.opponent
+   * if win, calculate the winAgainst object
+   * is lose, calculate the loseAgainst using winAgainst object keys
+   */
+  // oLetter => outcome Letter, X Y or Z
+  mySign(outcome) {
+    if (outcome === 'draw') {
+      return this.opponent;
+    } else if (outcome === 'win') {
+      return WinAgainst[this.opponent];
+    } else {
+      // calculate the key in WinAgainst hash
+      let toWinWith = WinAgainst[this.opponent];
+      return WinAgainst[toWinWith];
+    }
+  }
+
+
 }
 
 // returns an array of a string winner pair
@@ -114,9 +143,7 @@ let totalScore = 0;
 for (let line of input) {
   // we need to split the strings separated in each round for the encrypted values
   let round = new Round(line);
-  totalScore +=(round.score)
+  totalScore += round.score;
 }
 
-
 console.log(totalScore);
-
