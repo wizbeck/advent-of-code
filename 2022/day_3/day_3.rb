@@ -10,9 +10,12 @@
 require 'pathname'
 require 'pry'
 
+PART_ONE_SOLVED = true
+PART_TWO_SOLVED = true
+
 
 class Rucksack
-  attr_reader :first, :second, :overlap
+  attr_reader :all_contents, :first, :second, :overlap
   @@all = []
 
   PRIORITY = [*'a'..'z', *'A'..'Z'].map.with_index(1) do |char, priority|
@@ -20,6 +23,7 @@ class Rucksack
   end.to_h.freeze
 
   def initialize(contents)
+    @all_contents = contents
     @first, @second = parse_contents(contents)
     @overlap = overlapping_contents
     @@all << self
@@ -33,6 +37,15 @@ class Rucksack
 
   def self.all
     @@all
+  end
+
+  # returns +Rucksack+ objects grouped by an amount +number+
+  def self.in_groups_of(number)
+    groups = []
+    all.each_slice(number) do |group|
+      groups << group
+    end
+    groups
   end
 
   private
@@ -49,21 +62,43 @@ class Rucksack
   end
 end
 
+# PART ONE - overlaps between two compartments of a +Rucksack+
+
 input_path = Pathname.new(Dir.getwd).join('day_3', 'input.txt')
 
 file_lines = File.readlines(input_path, chomp: true)
 
-sum_of_priorities = 0
-# for each half, we find the strings that are duplicate across each compartment
-file_lines.each do |line|
-  r = Rucksack.new(line)
-  sum_of_priorities += r.overlap_priority_sum
+if PART_ONE_SOLVED
+  sum_of_priorities = 0
+  # for each half, we find the strings that are duplicate across each compartment
+  file_lines.each do |line|
+    r = Rucksack.new(line)
+    sum_of_priorities += r.overlap_priority_sum
+  end
+
+  puts "PART ONE ANSWER: #{sum_of_priorities}"
 end
+# END PART ONE
 
-puts sum_of_priorities
+# PART TWO
+# Problem: 
+# rucksack contents are grouped per 3 elves,
+#   find the overlap in all 3 rucksacks(lines)
+# each group of 3 has a correlating badge
+# badges are not 'authenticated'
 
-# FIRST GUESS 12501 -> WRONG! -> TOO HIGH
-# What does this mean that the answer was too high?
-# That means that some of the overlap that was counted was counted multiple times, or too many characters were overlapping.
-#   This could be due to the splitting of each compartment, and flooring the half length, creating additional overlap at the bisects of the file lines
-#   when creating Rucksack objects
+if PART_TWO_SOLVED
+  sum_of_priorities_grouped = 0
+  rucksack_groups = Rucksack.in_groups_of(3)
+  badges = []
+  rucksack_groups.each do |rg|
+    # split chars for each rucksack into an array of chars
+    rs_char_arrays = rg.map { |rs| rs.all_contents.split('') }
+    # finding the intersection between all three, should reveal a single character
+    badge = (rs_char_arrays.first & rs_char_arrays[1] & rs_char_arrays.last).first
+    badges << badge
+    sum_of_priorities_grouped += Rucksack::PRIORITY[badge]
+  end
+  puts "PART TWO ANSWER: #{sum_of_priorities_grouped}"
+end
+# END PART TWO
