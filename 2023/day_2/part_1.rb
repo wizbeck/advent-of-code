@@ -33,6 +33,7 @@ end
 # Script
 possible_games = []
 game_id_sum = 0
+
 File.foreach('input.txt', chomp: true) do |line|
   game = parsed_game_line(line)
   next unless possible?(game)
@@ -42,3 +43,4 @@ File.foreach('input.txt', chomp: true) do |line|
 end
 
 puts "#{possible_games.size} _possible_ games whose id total to: #{game_id_sum}"
+
